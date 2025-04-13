@@ -108,7 +108,7 @@ if urlt:
     st.pyplot(fig_imp)
 
     # Prediction UI
-    st.subheader("Try It Yourself: Passenger Survival Prediction")
+    st.subheader("Fill & submit the data to check - Passenger Survival Prediction")
 
     with st.form("prediction_form"):
         pclass = st.selectbox("Ticket Class (Pclass)", [1, 2, 3])
