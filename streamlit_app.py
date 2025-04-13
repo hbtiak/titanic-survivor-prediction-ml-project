@@ -127,7 +127,7 @@ if urlt:
 
 # 5. Interactive Prediction
 st.subheader("Try It Yourself: Passenger Survival Prediction")
-
+if model:
 with st.form("prediction_form"):
     pclass = st.selectbox("Ticket Class (Pclass)", [1, 2, 3])
     sex = st.selectbox("Sex", ["male", "female"])
@@ -162,3 +162,5 @@ if submit:
         st.success(f"🎉 The passenger would have SURVIVED! (Confidence: {prob:.2%})")
     else:
         st.error(f"💀 The passenger would NOT have survived. (Confidence: {prob:.2%})")
+else:
+        st.warning("⚠️ Please train a model first using the 'Train Model' button.")
