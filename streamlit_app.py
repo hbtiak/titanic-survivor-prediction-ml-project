@@ -7,8 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/19hFZsMfe5exd5O6rJ3rrx_tYJatOvi2q
 """
 
-# Titanic Survivor Prediction - Google Colab Notebook
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -21,57 +19,54 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-# Set Streamlit page config
+# Streamlit config
 st.set_page_config(page_title="Titanic Survivor Prediction", layout="wide")
+st.title("🚢 Titanic Survivor Prediction App")
 
-st.title("🚢 Titanic Survivor Prediction")
-st.write("Upload Titanic dataset and explore who was more likely to survive using machine learning.")
+# Initialize session state
+if 'model' not in st.session_state:
+    st.session_state.model = None
+if 'scaler' not in st.session_state:
+    st.session_state.scaler = None
 
-# 1. File Upload
-#uploaded_file = st.file_uploader("Upload Titanic CSV File", type=["csv"])
-
+# File uploader
 file_idt = "1Pf-t_SyT20sJ3lhxhzhJJ1G7dVKw5zdV"
 urlt = f"https://drive.google.com/uc?id={file_idt}"
 df = pd.read_csv(urlt)
 df.head()
 
 if urlt:
-    #df = pd.read_csv(uploaded_file)
     df = pd.read_csv(urlt)
+
+    # Show raw data
     st.subheader("📊 Raw Data")
     st.dataframe(df.head())
 
-    # 2. EDA
+    # EDA
     st.subheader("🔍 Exploratory Data Analysis")
-
-    with st.expander("Basic Info"):
+    with st.expander("Basic Information"):
         st.write(df.describe())
         st.write(df.info())
-        st.write("Missing values:")
         st.write(df.isnull().sum())
 
     with st.expander("Visualizations"):
         fig1, ax1 = plt.subplots()
         sns.countplot(x='Survived', data=df, ax=ax1)
-        ax1.set_title("Survival Count")
         st.pyplot(fig1)
 
         fig2, ax2 = plt.subplots()
         sns.countplot(x='Sex', hue='Survived', data=df, ax=ax2)
-        ax2.set_title("Survival by Gender")
         st.pyplot(fig2)
 
         fig3, ax3 = plt.subplots()
         sns.countplot(x='Pclass', hue='Survived', data=df, ax=ax3)
-        ax3.set_title("Survival by Class")
         st.pyplot(fig3)
 
         fig4, ax4 = plt.subplots()
         sns.boxplot(x='Pclass', y='Age', data=df, ax=ax4)
-        ax4.set_title("Age Distribution by Class")
         st.pyplot(fig4)
 
-    # 3. Preprocessing
+    # Preprocessing
     st.subheader("🧼 Data Preprocessing")
 
     df['Age'].fillna(df['Age'].median(), inplace=True)
@@ -87,12 +82,10 @@ if urlt:
 
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-    # 4. Model Selection
+    # Model training
     st.subheader("🤖 Model Training and Evaluation")
-
     model_choice = st.selectbox("Select Model", ["Logistic Regression", "Random Forest"])
 
     if st.button("Train Model"):
@@ -102,16 +95,18 @@ if urlt:
             model = RandomForestClassifier(n_estimators=100, random_state=42)
 
         model.fit(X_train, y_train)
+        st.session_state.model = model
+        st.session_state.scaler = scaler
+
         preds = model.predict(X_test)
 
         acc = accuracy_score(y_test, preds)
         cm = confusion_matrix(y_test, preds)
         report = classification_report(y_test, preds, output_dict=True)
 
-        st.write(f"### ✅ Accuracy: {acc:.4f}")
+        st.success(f"✅ Accuracy: {acc:.4f}")
         st.write("### 🔢 Confusion Matrix")
-        st.write(cm)
-
+        st.dataframe(cm)
         st.write("### 📄 Classification Report")
         st.dataframe(pd.DataFrame(report).transpose())
 
@@ -125,40 +120,42 @@ if urlt:
             sns.barplot(x='Importance', y='Feature', data=fi_df, ax=ax_imp)
             st.pyplot(fig_imp)
 
-# 5. Interactive Prediction
-st.subheader("Try It Yourself: Passenger Survival Prediction")
+    # Prediction form
+    st.subheader("🧪 Try It Yourself: Passenger Survival Prediction")
 
-with st.form("prediction_form"):
-    pclass = st.selectbox("Ticket Class (Pclass)", [1, 2, 3])
-    sex = st.selectbox("Sex", ["male", "female"])
-    age = st.slider("Age", 0, 80, 30)
-    sibsp = st.number_input("Siblings/Spouses Aboard (SibSp)", min_value=0, max_value=10, value=0)
-    parch = st.number_input("Parents/Children Aboard (Parch)", min_value=0, max_value=10, value=0)
-    fare = st.number_input("Fare Paid", min_value=0.0, max_value=600.0, value=32.2)
-    embarked = st.selectbox("Port of Embarkation", ["S", "C", "Q"])
+    if st.session_state.model is not None:
+        with st.form("prediction_form"):
+            pclass = st.selectbox("Ticket Class (Pclass)", [1, 2, 3])
+            sex = st.selectbox("Sex", ["male", "female"])
+            age = st.slider("Age", 0, 80, 30)
+            sibsp = st.number_input("Siblings/Spouses Aboard (SibSp)", min_value=0, max_value=10, value=0)
+            parch = st.number_input("Parents/Children Aboard (Parch)", min_value=0, max_value=10, value=0)
+            fare = st.number_input("Fare Paid", min_value=0.0, max_value=600.0, value=32.2)
+            embarked = st.selectbox("Port of Embarkation", ["S", "C", "Q"])
 
-    submit = st.form_submit_button("Predict")
+            submit = st.form_submit_button("Predict")
 
-if submit:
-    # Encode inputs to match training format
-    sex_enc = 1 if sex == "female" else 0
-    embarked_enc = {"S": 2, "C": 0, "Q": 1}[embarked]
+        if submit:
+            sex_enc = 1 if sex == "female" else 0
+            embarked_enc = {"S": 2, "C": 0, "Q": 1}[embarked]
 
-    input_data = pd.DataFrame([{
-        "Pclass": pclass,
-        "Sex": sex_enc,
-        "Age": age,
-        "SibSp": sibsp,
-        "Parch": parch,
-        "Fare": fare,
-        "Embarked": embarked_enc
-    }])
+            input_data = pd.DataFrame([{
+                "Pclass": pclass,
+                "Sex": sex_enc,
+                "Age": age,
+                "SibSp": sibsp,
+                "Parch": parch,
+                "Fare": fare,
+                "Embarked": embarked_enc
+            }])
 
-    input_scaled = scaler.transform(input_data)
-    prediction = model.predict(input_scaled)[0]
-    prob = model.predict_proba(input_scaled)[0][prediction]
+            input_scaled = st.session_state.scaler.transform(input_data)
+            prediction = st.session_state.model.predict(input_scaled)[0]
+            prob = st.session_state.model.predict_proba(input_scaled)[0][prediction]
 
-    if prediction == 1:
-        st.success(f"🎉 The passenger would have SURVIVED! (Confidence: {prob:.2%})")
+            if prediction == 1:
+                st.success(f"🎉 The passenger would have SURVIVED! (Confidence: {prob:.2%})")
+            else:
+                st.error(f"💀 The passenger would NOT have survived. (Confidence: {prob:.2%})")
     else:
-        st.error(f"💀 The passenger would NOT have survived. (Confidence: {prob:.2%})")
+        st.warning("⚠️ Please train a model first using the 'Train Model' button.")
