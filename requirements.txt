@@ -5,10 +5,3 @@ streamlit
 babel
 numpy
 train_test_split
-LabelEncoder
-StandardScaler
-LogisticRegression
-RandomForestClassifier
-accuracy_score
-confusion_matrix
-classification_report
