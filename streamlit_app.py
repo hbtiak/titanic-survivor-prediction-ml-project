@@ -28,10 +28,16 @@ st.title("🚢 Titanic Survivor Prediction")
 st.write("Upload Titanic dataset and explore who was more likely to survive using machine learning.")
 
 # 1. File Upload
-uploaded_file = st.file_uploader("Upload Titanic CSV File", type=["csv"])
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
+#uploaded_file = st.file_uploader("Upload Titanic CSV File", type=["csv"])
 
+file_idt = "1Pf-t_SyT20sJ3lhxhzhJJ1G7dVKw5zdV"
+urlt = f"https://drive.google.com/uc?id={file_idt}"
+df = pd.read_csv(urlt)
+df.head()
+
+if urlt:
+    #df = pd.read_csv(uploaded_file)
+    df = pd.read_csv(urlt)
     st.subheader("📊 Raw Data")
     st.dataframe(df.head())
 
