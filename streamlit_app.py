@@ -128,35 +128,35 @@ if urlt:
 # 5. Interactive Prediction
 st.subheader("Try It Yourself: Passenger Survival Prediction")
 if model:
-with st.form("prediction_form"):
-    pclass = st.selectbox("Ticket Class (Pclass)", [1, 2, 3])
-    sex = st.selectbox("Sex", ["male", "female"])
-    age = st.slider("Age", 0, 80, 30)
-    sibsp = st.number_input("Siblings/Spouses Aboard (SibSp)", min_value=0, max_value=10, value=0)
-    parch = st.number_input("Parents/Children Aboard (Parch)", min_value=0, max_value=10, value=0)
-    fare = st.number_input("Fare Paid", min_value=0.0, max_value=600.0, value=32.2)
-    embarked = st.selectbox("Port of Embarkation", ["S", "C", "Q"])
+    with st.form("prediction_form"):
+      pclass = st.selectbox("Ticket Class (Pclass)", [1, 2, 3])
+      sex = st.selectbox("Sex", ["male", "female"])
+      age = st.slider("Age", 0, 80, 30)
+      sibsp = st.number_input("Siblings/Spouses Aboard (SibSp)", min_value=0, max_value=10, value=0)
+      parch = st.number_input("Parents/Children Aboard (Parch)", min_value=0, max_value=10, value=0)
+      fare = st.number_input("Fare Paid", min_value=0.0, max_value=600.0, value=32.2)
+      embarked = st.selectbox("Port of Embarkation", ["S", "C", "Q"])
 
-    submit = st.form_submit_button("Predict")
+      submit = st.form_submit_button("Predict")
 
-if submit:
-    # Encode inputs to match training format
-    sex_enc = 1 if sex == "female" else 0
-    embarked_enc = {"S": 2, "C": 0, "Q": 1}[embarked]
+    if submit:
+      # Encode inputs to match training format
+      sex_enc = 1 if sex == "female" else 0
+      embarked_enc = {"S": 2, "C": 0, "Q": 1}[embarked]
 
-    input_data = pd.DataFrame([{
-        "Pclass": pclass,
-        "Sex": sex_enc,
-        "Age": age,
-        "SibSp": sibsp,
-        "Parch": parch,
-        "Fare": fare,
-        "Embarked": embarked_enc
-    }])
+      input_data = pd.DataFrame([{
+          "Pclass": pclass,
+          "Sex": sex_enc,
+          "Age": age,
+          "SibSp": sibsp,
+          "Parch": parch,
+          "Fare": fare,
+          "Embarked": embarked_enc
+      }])
 
-    input_scaled = scaler.transform(input_data)
-    prediction = model.predict(input_scaled)[0]
-    prob = model.predict_proba(input_scaled)[0][prediction]
+      input_scaled = scaler.transform(input_data)
+      prediction = model.predict(input_scaled)[0]
+      prob = model.predict_proba(input_scaled)[0][prediction]
 
     if prediction == 1:
         st.success(f"🎉 The passenger would have SURVIVED! (Confidence: {prob:.2%})")
