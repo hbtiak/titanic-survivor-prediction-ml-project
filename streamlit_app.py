@@ -98,14 +98,7 @@ if urlt:
     st.write("### 📄 Classification Report")
     st.dataframe(pd.DataFrame(report).transpose())
 
-    st.write("### Feature Importances")
-    importances = model.feature_importances_
-    feature_names = df.drop('Survived', axis=1).columns
-    fi_df = pd.DataFrame({'Feature': feature_names, 'Importance': importances}).sort_values(by="Importance", ascending=False)
 
-    fig_imp, ax_imp = plt.subplots()
-    sns.barplot(x='Importance', y='Feature', data=fi_df, ax=ax_imp)
-    st.pyplot(fig_imp)
 
     # Prediction UI
     st.subheader("Fill & submit the data to check - Passenger Survival Prediction")
@@ -143,3 +136,12 @@ if urlt:
             st.success(f"Good News - The passenger would have SURVIVED! (Confidence: {prob:.2%})")
         else:
             st.error(f"Bad news - The passenger would NOT have survived. (Confidence: {prob:.2%})")
+
+    st.write("### Feature Importances")
+    importances = model.feature_importances_
+    feature_names = df.drop('Survived', axis=1).columns
+    fi_df = pd.DataFrame({'Feature': feature_names, 'Importance': importances}).sort_values(by="Importance", ascending=False)
+
+    fig_imp, ax_imp = plt.subplots()
+    sns.barplot(x='Importance', y='Feature', data=fi_df, ax=ax_imp)
+    st.pyplot(fig_imp)
