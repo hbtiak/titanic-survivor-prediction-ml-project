@@ -20,7 +20,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 st.set_page_config(page_title="Titanic Survivor Prediction", layout="wide")
-st.title("🚢 Titanic Survivor Prediction App")
+st.title("Titanic Survivor Prediction ML Project")
 
 # Initialize session state
 if 'model' not in st.session_state:
@@ -36,11 +36,11 @@ df.head()
 if urlt:
     df = pd.read_csv(urlt)
 
-    st.subheader("📊 Raw Data")
+    st.subheader("Raw Data")
     st.dataframe(df.head())
 
     # EDA
-    st.subheader("🔍 Exploratory Data Analysis")
+    st.subheader("Data Analysis - Explaination")
     with st.expander("Basic Information"):
         st.write(df.describe())
         st.write(df.info())
@@ -64,7 +64,7 @@ if urlt:
         st.pyplot(fig4)
 
     # Preprocessing
-    st.subheader("🧼 Preprocessing & Model Training (Automatic)")
+    st.subheader("Preprocessing & Model Training (Automatic)")
     df['Age'].fillna(df['Age'].median(), inplace=True)
     df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
     df.drop(['Cabin', 'PassengerId', 'Name', 'Ticket'], axis=1, inplace=True)
@@ -92,13 +92,13 @@ if urlt:
     cm = confusion_matrix(y_test, preds)
     report = classification_report(y_test, preds, output_dict=True)
 
-    st.success(f"✅ Model trained! Accuracy: {acc:.4f}")
-    st.write("### 🔢 Confusion Matrix")
+    st.success(f"Model trained! Accuracy: {acc:.4f}")
+    st.write("### Confusion Matrix")
     st.dataframe(cm)
     st.write("### 📄 Classification Report")
     st.dataframe(pd.DataFrame(report).transpose())
 
-    st.write("### 🔥 Feature Importances")
+    st.write("### Feature Importances")
     importances = model.feature_importances_
     feature_names = df.drop('Survived', axis=1).columns
     fi_df = pd.DataFrame({'Feature': feature_names, 'Importance': importances}).sort_values(by="Importance", ascending=False)
@@ -108,7 +108,7 @@ if urlt:
     st.pyplot(fig_imp)
 
     # Prediction UI
-    st.subheader("🧪 Try It Yourself: Passenger Survival Prediction")
+    st.subheader("Try It Yourself: Passenger Survival Prediction")
 
     with st.form("prediction_form"):
         pclass = st.selectbox("Ticket Class (Pclass)", [1, 2, 3])
@@ -140,6 +140,6 @@ if urlt:
         prob = st.session_state.model.predict_proba(input_scaled)[0][prediction]
 
         if prediction == 1:
-            st.success(f"🎉 The passenger would have SURVIVED! (Confidence: {prob:.2%})")
+            st.success(f"Good News - The passenger would have SURVIVED! (Confidence: {prob:.2%})")
         else:
-            st.error(f"💀 The passenger would NOT have survived. (Confidence: {prob:.2%})")
+            st.error(f"Bad news - The passenger would NOT have survived. (Confidence: {prob:.2%})")
